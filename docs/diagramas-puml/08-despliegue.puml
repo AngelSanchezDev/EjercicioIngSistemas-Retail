@@ -1,0 +1,34 @@
+@startuml 08-despliegue
+title Diagrama de Despliegue - ModaExpress en producción
+
+node "Tienda física (x5)" as Tiendas {
+  component "Navegador web\n(PC / tablet del vendedor)" as NavTienda
+}
+
+node "Cliente del canal online" as Cliente {
+  component "Navegador / checkout\ne-commerce" as NavOnline
+}
+
+cloud "Proveedor cloud (Render)" {
+  node "Web Service (Docker)\nphp:8.2-apache" as App {
+    component "Aplicación PHP MVC" as PHP
+  }
+}
+
+node "Proveedor de base de datos\n(Aiven / TiDB Serverless)" as DBHost {
+  database "MySQL\nmoda_express" as DB
+}
+
+NavTienda --> App : HTTPS
+NavOnline --> App : HTTPS (API venta_online)
+App --> DB : conexión PDO\n(TLS, variables de entorno)
+
+note right of App
+  Un solo servicio (no hay separación
+  frontend/backend): el PHP genera
+  el HTML y expone los endpoints JSON.
+  Escalable horizontalmente con más
+  instancias detrás de un balanceador.
+end note
+
+@enduml

@@ -1,0 +1,130 @@
+@startuml 02-clases
+title Diagrama de Clases - Dominio de Inventario ModaExpress
+
+skinparam classAttributeIconSize 0
+hide circle
+
+class Usuario {
+  - id: int
+  - nombre: String
+  - email: String
+  - passwordHash: String
+  - rol: RolUsuario
+  - tiendaId: int
+  - activo: bool
+  + autenticar(password): bool
+}
+
+enum RolUsuario {
+  ADMIN
+  GERENTE
+  VENDEDOR
+}
+
+class Tienda {
+  - id: int
+  - nombre: String
+  - direccion: String
+  - tipo: TipoTienda
+  - activo: bool
+}
+
+enum TipoTienda {
+  FISICA
+  ONLINE
+}
+
+class Categoria {
+  - id: int
+  - nombre: String
+}
+
+class Producto {
+  - id: int
+  - sku: String
+  - nombre: String
+  - precio: decimal
+  - stockMinimo: int
+  - stockMaximo: int
+  - activo: bool
+  + calcularAlerta(stockActual): TipoAlerta
+}
+
+class Stock {
+  - id: int
+  - cantidad: int
+  + actualizar(cantidad): void
+}
+
+class Movimiento {
+  - id: int
+  - tipo: TipoMovimiento
+  - cantidad: int
+  - referencia: String
+  - creadoEn: datetime
+  + registrar(): void
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  VENTA
+  AJUSTE
+  TRANSFERENCIA_SALIDA
+  TRANSFERENCIA_ENTRADA
+}
+
+class Reposicion {
+  - id: int
+  - cantidadSolicitada: int
+  - estado: EstadoReposicion
+  - comentario: String
+  - creadoEn: datetime
+  - resueltoEn: datetime
+  + aprobar(aprobador): void
+  + rechazar(aprobador): void
+  + recibir(): void
+}
+
+enum EstadoReposicion {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  RECIBIDA
+}
+
+class Alerta <<calculada>> {
+  + tipo: TipoAlerta
+  + listar(): List<Alerta>
+}
+
+enum TipoAlerta {
+  QUIEBRE
+  BAJO_STOCK
+  SOBRESTOCK
+  NORMAL
+}
+
+Usuario "0..*" --> "0..1" Tienda : trabaja en >
+Usuario "1" --> "0..*" Movimiento : registra >
+Usuario "1" --> "0..*" Reposicion : solicita >
+Usuario "1" --> "0..*" Reposicion : aprueba >
+
+Tienda "1" --> "0..*" Stock : tiene >
+Tienda "1" --> "0..*" Movimiento : ocurre en >
+Tienda "1" --> "0..*" Reposicion : destino de >
+
+Categoria "1" --> "0..*" Producto : clasifica >
+
+Producto "1" --> "0..*" Stock : tiene >
+Producto "1" --> "0..*" Movimiento : involucra >
+Producto "1" --> "0..*" Reposicion : solicitado para >
+Producto "1" ..> Alerta : evalúa umbrales >
+
+Usuario::rol -- RolUsuario
+Tienda::tipo -- TipoTienda
+Movimiento::tipo -- TipoMovimiento
+Reposicion::estado -- EstadoReposicion
+Alerta::tipo -- TipoAlerta
+
+@enduml

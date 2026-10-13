@@ -1,0 +1,43 @@
+@startuml 10-secuencia-reposicion
+title Diagrama de Secuencia - Flujo de aprobación de reposición
+
+actor "Vendedor" as Vendedor
+actor "Gerente" as Gerente
+participant "ReposicionController" as Controller
+participant "Reposicion\n(Model)" as Model
+participant "Movimiento\n(Model)" as Movimiento
+database "MySQL" as DB
+
+Vendedor -> Controller : POST reposicion/crear\n(producto, tienda, cantidad)
+Controller -> Model : Reposicion::crear(...)
+Model -> DB : INSERT INTO reposiciones\n(estado = 'pendiente')
+DB --> Model : id generado
+Model --> Controller : OK
+Controller --> Vendedor : redirect a listado
+
+Gerente -> Controller : GET reposicion/aprobar/{id}
+Controller -> Controller : Auth::requireRole([admin, gerente])
+Controller -> Model : Reposicion::resolver(id, 'aprobada', aprobadorId)
+Model -> DB : UPDATE reposiciones\nSET estado='aprobada', aprobado_por=?
+DB --> Model : OK
+Model --> Controller : OK
+Controller --> Gerente : redirect a listado\n(estado: Aprobada)
+
+Vendedor -> Controller : GET reposicion/recibir/{id}
+Controller -> Model : Reposicion::recibir(id, usuarioId)
+Model -> Model : valida estado == 'aprobada'
+Model -> Movimiento : Movimiento::registrar(producto,\ntienda, 'entrada', cantidad)
+
+activate Movimiento
+Movimiento -> DB : BEGIN
+Movimiento -> DB : UPDATE stock SET cantidad = cantidad + ?
+Movimiento -> DB : INSERT INTO movimientos (...)
+Movimiento -> DB : COMMIT
+deactivate Movimiento
+
+Model -> DB : UPDATE reposiciones\nSET estado='recibida'
+DB --> Model : OK
+Model --> Controller : OK
+Controller --> Vendedor : redirect a listado\n(estado: Recibida, stock actualizado)
+
+@enduml

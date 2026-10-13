@@ -1,0 +1,59 @@
+@startuml 07-componentes-arquitectura
+title Diagrama de Componentes - Arquitectura MVC del Sistema
+
+skinparam componentStyle rectangle
+
+package "Navegador (tienda física / online)" {
+  [Vistas PHP\n(HTML + CSS + JS)] as Vistas
+  [JS: smart polling\n(cada 5s si visible)] as Polling
+}
+
+package "Servidor PHP (Apache)" {
+  [Front Controller\npublic/index.php] as FC
+  [Router] as Router
+  [Controllers] as Controllers
+  [Models] as Models
+  [Auth\n(sesión / roles)] as Auth
+  [View\n(render de plantillas)] as View
+
+  package "api/ (endpoints JSON)" {
+    [version.php] as ApiVersion
+    [dashboard_resumen.php] as ApiResumen
+    [venta_online.php] as ApiVentaOnline
+  }
+}
+
+database "MySQL\nmoda_express" as DB {
+  [usuarios]
+  [tiendas]
+  [productos]
+  [stock]
+  [movimientos]
+  [reposiciones]
+}
+
+Vistas --> FC : HTTP request\n(index.php?r=controller/accion)
+FC --> Router
+Router --> Controllers
+Controllers --> Auth : valida sesión y rol
+Controllers --> Models
+Controllers --> View : renderiza respuesta
+View --> Vistas
+
+Polling --> ApiVersion : fetch cada 5s
+Polling --> ApiResumen : solo si cambió el ID
+
+ApiVersion --> Models
+ApiResumen --> Models
+ApiVentaOnline --> Models : simula venta\ndel canal e-commerce
+
+Models --> DB : PDO / consultas preparadas
+
+note bottom of DB
+  Transacciones atómicas en cada
+  movimiento de stock (BEGIN/COMMIT)
+  para evitar condiciones de carrera
+  entre tiendas concurrentes.
+end note
+
+@enduml

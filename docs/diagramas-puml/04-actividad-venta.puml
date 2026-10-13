@@ -1,0 +1,28 @@
+@startuml 04-actividad-venta
+title Diagrama de Actividades - Registrar una venta
+
+start
+:Cliente compra en tienda\nfísica o canal online;
+:Vendedor/sistema selecciona\nproducto, tienda y cantidad;
+
+if (¿Stock disponible suficiente?) then (no)
+  :Sistema rechaza la venta\ny muestra mensaje de error;
+  stop
+else (sí)
+  :Sistema inicia transacción\nde base de datos (BEGIN);
+  :Bloquea la fila de stock\n(SELECT ... FOR UPDATE);
+  :Descuenta la cantidad vendida\ndel stock de la tienda;
+  :Inserta el movimiento\ntipo "venta" en el historial;
+  :Confirma la transacción (COMMIT);
+
+  if (¿Stock resultante < stock mínimo\nconfigurado del producto?) then (sí)
+    :Sistema genera alerta\nautomática de bajo stock;
+  else (no)
+  endif
+
+  :Dashboard se sincroniza\n(smart polling, máx. 5s);
+  :Venta confirmada;
+  stop
+endif
+
+@enduml

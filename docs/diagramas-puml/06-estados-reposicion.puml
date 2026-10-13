@@ -1,0 +1,27 @@
+@startuml 06-estados-reposicion
+title Diagrama de Estados - Ciclo de vida de una Solicitud de Reposición
+
+[*] --> Pendiente : vendedor/gerente\ncrea la solicitud
+
+Pendiente --> Aprobada : gerente/admin\naprueba()
+Pendiente --> Rechazada : gerente/admin\nrechaza()
+
+Aprobada --> Recibida : tienda\nrecibe() \n(genera movimiento\nde entrada al stock)
+
+Rechazada --> [*]
+Recibida --> [*]
+
+note right of Pendiente
+  Estado inicial. Solo en este
+  estado puede aprobarse o
+  rechazarse la solicitud.
+end note
+
+note right of Aprobada
+  Solo una solicitud aprobada
+  puede marcarse como recibida.
+  Al recibirla se actualiza el
+  stock de forma transaccional.
+end note
+
+@enduml

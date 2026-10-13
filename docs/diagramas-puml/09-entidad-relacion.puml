@@ -1,0 +1,96 @@
+@startuml 09-entidad-relacion
+title Diagrama Entidad-Relación - Base de datos moda_express
+
+skinparam linetype ortho
+
+entity "usuarios" as usuarios {
+  * id : INT <<PK>>
+  --
+  nombre : VARCHAR(100)
+  email : VARCHAR(150) <<UNIQUE>>
+  password_hash : VARCHAR(255)
+  rol : ENUM(admin,gerente,vendedor)
+  tienda_id : INT <<FK>>
+  activo : TINYINT(1)
+  creado_en : DATETIME
+}
+
+entity "tiendas" as tiendas {
+  * id : INT <<PK>>
+  --
+  nombre : VARCHAR(100)
+  direccion : VARCHAR(200)
+  tipo : ENUM(fisica,online)
+  activo : TINYINT(1)
+}
+
+entity "categorias" as categorias {
+  * id : INT <<PK>>
+  --
+  nombre : VARCHAR(80) <<UNIQUE>>
+}
+
+entity "productos" as productos {
+  * id : INT <<PK>>
+  --
+  sku : VARCHAR(50) <<UNIQUE>>
+  nombre : VARCHAR(150)
+  categoria_id : INT <<FK>>
+  precio : DECIMAL(10,2)
+  stock_minimo : INT
+  stock_maximo : INT
+  activo : TINYINT(1)
+}
+
+entity "stock" as stock {
+  * id : INT <<PK>>
+  --
+  producto_id : INT <<FK>>
+  tienda_id : INT <<FK>>
+  cantidad : INT
+  --
+  <<UNIQUE>> (producto_id, tienda_id)
+}
+
+entity "movimientos" as movimientos {
+  * id : INT <<PK>>
+  --
+  producto_id : INT <<FK>>
+  tienda_id : INT <<FK>>
+  tipo : ENUM(entrada,salida,venta,\najuste,transferencia_salida,\ntransferencia_entrada)
+  cantidad : INT
+  usuario_id : INT <<FK>>
+  referencia : VARCHAR(100)
+  creado_en : DATETIME
+}
+
+entity "reposiciones" as reposiciones {
+  * id : INT <<PK>>
+  --
+  producto_id : INT <<FK>>
+  tienda_id : INT <<FK>>
+  cantidad_solicitada : INT
+  estado : ENUM(pendiente,aprobada,\nrechazada,recibida)
+  solicitado_por : INT <<FK>>
+  aprobado_por : INT <<FK>>
+  comentario : VARCHAR(255)
+  creado_en : DATETIME
+  resuelto_en : DATETIME
+}
+
+usuarios }o--|| tiendas : trabaja en
+categorias ||--o{ productos : clasifica
+
+productos ||--o{ stock : tiene
+tiendas ||--o{ stock : tiene
+
+productos ||--o{ movimientos : involucra
+tiendas ||--o{ movimientos : ocurre en
+usuarios ||--o{ movimientos : registra
+
+productos ||--o{ reposiciones : solicitado para
+tiendas ||--o{ reposiciones : destino
+usuarios ||--o{ reposiciones : solicita
+usuarios ||--o{ reposiciones : aprueba
+
+@enduml

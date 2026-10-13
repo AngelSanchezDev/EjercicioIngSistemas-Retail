@@ -1,0 +1,31 @@
+@startuml 05-actividad-bpmn-reposicion
+title Proceso BPMN (como diagrama de actividades con carriles) - Aprobación de Reposición de Stock
+
+|Vendedor / Gerente de Tienda|
+start
+:Detecta producto con\nstock bajo (alerta activa);
+:Crea solicitud de reposición\n(producto, tienda, cantidad, comentario);
+
+|Gerencia General / Administrador|
+:Revisa la solicitud pendiente;
+if (¿Aprueba la solicitud?) then (rechazar)
+  :Registra motivo de rechazo;
+  |Vendedor / Gerente de Tienda|
+  :Recibe notificación de rechazo;
+  stop
+else (aprobar)
+  :Aprueba la solicitud\n(queda trazado el usuario aprobador);
+endif
+
+|Logística / Almacén|
+:Despacha la mercadería\nsolicitada;
+:Entrega la mercadería\nen la tienda destino;
+
+|Vendedor / Gerente de Tienda|
+:Confirma la recepción\nde la mercadería;
+:Sistema registra el movimiento\nde tipo "entrada" en el stock;
+:Solicitud pasa a estado\n"recibida";
+:Stock de la tienda queda\nactualizado y sincronizado;
+stop
+
+@enduml

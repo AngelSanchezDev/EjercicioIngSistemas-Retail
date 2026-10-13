@@ -1,0 +1,52 @@
+@startuml 03-secuencia-registrar-venta
+title Diagrama de Secuencia - Registrar una venta (patrón MVC)
+
+actor Vendedor
+participant "Vista\n(movimientos/index.php)" as Vista
+participant "Front Controller\n(public/index.php)" as FC
+participant "Router" as Router
+participant "MovimientoController" as Controller
+participant "Movimiento\n(Model)" as Model
+participant "Database\n(PDO)" as DB
+participant "Alerta\n(Model)" as Alerta
+
+Vendedor -> Vista : completa formulario\n(producto, tienda, cantidad)
+Vista -> FC : POST index.php?r=movimiento/registrar
+FC -> Router : dispatch()
+Router -> Controller : registrar()
+Controller -> Controller : Auth::requireLogin()
+Controller -> Model : Movimiento::registrar(productoId,\ntiendaId, 'venta', cantidad, usuarioId)
+
+activate Model
+Model -> DB : BEGIN TRANSACTION
+Model -> DB : SELECT cantidad FROM stock\nWHERE producto_id=? AND tienda_id=?\nFOR UPDATE
+DB --> Model : stock actual
+
+alt stock actual < cantidad solicitada
+  Model -> DB : ROLLBACK
+  Model --> Controller : throw RuntimeException\n("Stock insuficiente")
+  Controller --> Vista : muestra mensaje de error
+else stock suficiente
+  Model -> DB : UPDATE stock SET cantidad = cantidad - ?
+  Model -> DB : INSERT INTO movimientos (...)
+  Model -> DB : COMMIT
+  Model --> Controller : OK
+  deactivate Model
+
+  Controller -> FC : redirect index.php?r=movimiento/index
+  Vendedor -> Vista : (en otra pestaña) dashboard activo
+  Vista -> Vista : setInterval cada 5s
+  Vista -> FC : GET api/version.php
+  FC -> Alerta : Alerta::contar()
+  Alerta -> DB : SELECT stock vs umbrales
+  DB --> Alerta : alertas activas
+  Alerta --> Vista : { ultimo_movimiento_id, alertas }
+
+  note right of Vista
+    Si ultimo_movimiento_id cambió,
+    recién ahí pide el detalle completo
+    (api/dashboard_resumen.php).
+  end note
+end
+
+@enduml

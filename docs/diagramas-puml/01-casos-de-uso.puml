@@ -1,0 +1,70 @@
+@startuml 01-casos-de-uso
+title Diagrama de Casos de Uso - Sistema de Gestión de Inventarios ModaExpress
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Vendedor" as Vendedor
+actor "Gerente de Tienda" as Gerente
+actor "Administrador" as Admin
+actor "Canal E-commerce" as Online
+actor "Sistema" as Sistema <<system>>
+
+Gerente -|> Vendedor
+Admin -|> Gerente
+
+rectangle "Sistema de Gestión de Inventarios ModaExpress" {
+  usecase "Iniciar sesión" as UC0
+  usecase "Registrar venta" as UC1
+  usecase "Consultar stock por tienda" as UC2
+  usecase "Registrar entrada/salida de\ninventario (código de barras)" as UC3
+  usecase "Solicitar reposición de stock" as UC4
+  usecase "Aprobar / Rechazar\nsolicitud de reposición" as UC5
+  usecase "Confirmar recepción\nde mercadería" as UC6
+  usecase "Gestionar productos\n(CRUD)" as UC7
+  usecase "Configurar umbrales\nde alerta (min/max)" as UC8
+  usecase "Generar reportes de\nrotación y ventas" as UC9
+  usecase "Gestionar usuarios y roles" as UC10
+  usecase "Generar alerta automática\nde stock" as UC11
+  usecase "Registrar venta online" as UC12
+  usecase "Sincronizar dashboard\nen tiempo casi real" as UC13
+}
+
+Vendedor --> UC0
+Vendedor --> UC1
+Vendedor --> UC2
+Vendedor --> UC3
+Vendedor --> UC4
+Vendedor --> UC6
+
+Gerente --> UC5
+Gerente --> UC7
+Gerente --> UC9
+
+Admin --> UC8
+Admin --> UC10
+Admin --> UC9
+Admin --> UC7
+
+Online --> UC12
+UC12 ..> UC3 : <<include>>
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC13 : <<include>>
+
+Sistema --> UC11
+UC3 ..> UC11 : <<extend>>
+
+note right of UC11
+  Se calcula automáticamente al vuelo
+  comparando el stock contra stock_minimo
+  y stock_maximo del producto.
+end note
+
+note right of UC13
+  "Smart polling": el navegador consulta
+  cada 5s solo el último ID de movimiento;
+  si cambió, recién pide el detalle completo.
+end note
+
+@enduml
