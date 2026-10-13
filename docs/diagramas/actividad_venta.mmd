@@ -1,0 +1,12 @@
+flowchart LR
+  A([Inicio: cliente compra]) --> B[Vendedor selecciona<br/>producto y tienda]
+  B --> C{Stock<br/>suficiente?}
+  C -- No --> D[Sistema rechaza<br/>la venta]
+  D --> Z([Fin])
+  C -- Si --> E[Registra movimiento<br/>tipo venta]
+  E --> F[Descuenta stock<br/>en transaccion atomica]
+  F --> G{Stock menor<br/>al minimo?}
+  G -- Si --> H[Genera alerta<br/>de bajo stock]
+  G -- No --> I[Actualiza<br/>dashboard]
+  H --> I
+  I --> J([Fin: venta confirmada])

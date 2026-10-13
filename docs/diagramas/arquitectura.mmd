@@ -1,0 +1,19 @@
+flowchart LR
+  subgraph Cliente["Navegador (Tienda fisica / Online)"]
+    V["Vistas PHP:<br/>HTML + CSS + JS polling"]
+  end
+  subgraph Servidor["Servidor PHP (Apache) - patron MVC"]
+    FC["Front Controller:<br/>public/index.php"]
+    R[Router]
+    CT[Controllers]
+    M[Models]
+    FC --> R --> CT --> M
+    CT --> V
+  end
+  subgraph Datos["MySQL"]
+    DB[("Base de datos<br/>moda_express")]
+  end
+  API["api/*.php:<br/>Endpoints JSON"] --> M
+  V -- "HTTP request" --> FC
+  V -- "polling cada 5s" --> API
+  M -- "PDO / SQL" --> DB

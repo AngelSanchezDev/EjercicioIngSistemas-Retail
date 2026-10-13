@@ -1,0 +1,20 @@
+flowchart LR
+  subgraph L1["Vendedor / Gerente de Tienda"]
+    A([Inicio]) --> B[Detectar stock bajo]
+    B --> C[Crear solicitud de reposicion]
+  end
+  subgraph L2["Gerencia General / Admin"]
+    C --> D{Evaluar solicitud}
+    D -- Rechazar --> E[Notificar rechazo]
+    E --> Z1([Fin])
+    D -- Aprobar --> F[Aprobar solicitud]
+  end
+  subgraph L3["Logistica / Almacen"]
+    F --> G[Despachar mercaderia]
+    G --> H[Entregar en tienda]
+  end
+  subgraph L4["Vendedor / Gerente de Tienda "]
+    H --> I[Confirmar recepcion]
+    I --> J[Sistema registra entrada de stock]
+    J --> Z2([Fin: stock actualizado])
+  end

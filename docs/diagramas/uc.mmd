@@ -1,0 +1,13 @@
+graph TD
+  Vendedor([Vendedor]) --> UC1[Registrar venta]
+  Vendedor --> UC2[Consultar stock]
+  Vendedor --> UC6[Solicitar reposicion]
+  Gerente([Gerente de tienda]) --> UC2
+  Gerente --> UC3[Aprobar o Rechazar reposicion]
+  Gerente --> UC4[Generar reportes]
+  Gerente --> UC7[Gestionar productos]
+  Admin([Administrador]) --> UC4
+  Admin --> UC5[Configurar umbrales de alerta]
+  Admin --> UC7
+  Sistema([Sistema]) --> UC8[Generar alerta automatica]
+  CanalOnline([Canal E-commerce]) --> UC1

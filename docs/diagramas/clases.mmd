@@ -1,0 +1,50 @@
+classDiagram
+  class Usuario {
+    +int id
+    +String nombre
+    +String email
+    +String rol
+    +autenticar()
+  }
+  class Tienda {
+    +int id
+    +String nombre
+    +String tipo
+  }
+  class Producto {
+    +int id
+    +String sku
+    +String nombre
+    +decimal precio
+    +int stockMinimo
+    +int stockMaximo
+  }
+  class Stock {
+    +int cantidad
+    +actualizar(cantidad)
+  }
+  class Movimiento {
+    +String tipo
+    +int cantidad
+    +datetime creadoEn
+    +registrar()
+  }
+  class Reposicion {
+    +int cantidadSolicitada
+    +String estado
+    +aprobar()
+    +rechazar()
+    +recibir()
+  }
+  class Alerta {
+    +calcular()
+  }
+  Usuario "1" --> "0..1" Tienda : trabaja en
+  Tienda "1" --> "many" Stock : tiene
+  Producto "1" --> "many" Stock : tiene
+  Producto "1" --> "many" Movimiento : involucra
+  Tienda "1" --> "many" Movimiento : ocurre en
+  Usuario "1" --> "many" Movimiento : registra
+  Producto "1" --> "many" Reposicion : solicitado para
+  Usuario "1" --> "many" Reposicion : solicita/aprueba
+  Stock ..> Alerta : evalua umbrales

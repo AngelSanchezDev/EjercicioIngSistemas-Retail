@@ -1,0 +1,11 @@
+erDiagram
+  USUARIOS ||--o{ MOVIMIENTOS : registra
+  USUARIOS }o--|| TIENDAS : trabaja_en
+  TIENDAS ||--o{ STOCK : tiene
+  PRODUCTOS ||--o{ STOCK : tiene
+  PRODUCTOS ||--o{ MOVIMIENTOS : involucra
+  TIENDAS ||--o{ MOVIMIENTOS : ocurre_en
+  PRODUCTOS ||--o{ REPOSICIONES : solicitado_para
+  TIENDAS ||--o{ REPOSICIONES : para
+  CATEGORIAS ||--o{ PRODUCTOS : clasifica
+  USUARIOS ||--o{ REPOSICIONES : solicita_o_aprueba
