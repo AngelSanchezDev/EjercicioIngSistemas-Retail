@@ -43,14 +43,7 @@ UPDATE stock SET cantidad = 2 WHERE producto_id = 6 AND tienda_id = 3;   -- bajo
 UPDATE stock SET cantidad = 250 WHERE producto_id = 8 AND tienda_id = 2; -- sobrestock
 UPDATE stock SET cantidad = 0 WHERE producto_id = 7 AND tienda_id = 6;   -- quiebre de stock online
 
--- Algunos movimientos de ejemplo (historial)
-INSERT INTO movimientos (producto_id, tienda_id, tipo, cantidad, usuario_id, referencia) VALUES
-(1, 1, 'entrada', 50, 1, 'OC-1001'),
-(1, 1, 'venta', 5, 3, 'BOL-0001'),
-(3, 1, 'venta', 2, 3, 'BOL-0002'),
-(6, 3, 'venta', 8, NULL, 'BOL-0003'),
-(7, 6, 'venta', 20, NULL, 'WEB-00045');
-
--- Una solicitud de reposición pendiente (para probar el flujo BPMN)
-INSERT INTO reposiciones (producto_id, tienda_id, cantidad_solicitada, estado, solicitado_por, comentario) VALUES
-(6, 3, 40, 'pendiente', 2, 'Stock crítico, alta demanda por temporada');
+-- NOTA: los movimientos y la solicitud de reposición de ejemplo (que referencian
+-- usuario_id) se insertan en database/seed_post_users.sql, DESPUÉS de correr
+-- database/seed.php (que crea los usuarios). Si se insertaran aquí, fallarían
+-- por la foreign key usuarios(id) ya que seed.sql corre antes que seed.php.

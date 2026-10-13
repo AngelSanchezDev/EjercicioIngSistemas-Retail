@@ -41,13 +41,15 @@ docs/
 1. Levanta MySQL (XAMPP, Docker, o local) y crea la base:
    ```
    mysql -u root -p < database/schema.sql
-   mysql -u root -p moda_express < database/seed.sql
+   mysql -u root -p < database/seed.sql
    ```
 2. Configura las variables de entorno (o copia `.env.example` y expórtalas):
    `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`.
-3. Crea los usuarios de prueba (usa `password_hash()` real de PHP):
+3. Crea los usuarios de prueba (usa `password_hash()` real de PHP) y luego
+   los movimientos/reposición de ejemplo que dependen de ellos:
    ```
    php database/seed.php
+   mysql -u root -p < database/seed_post_users.sql
    ```
 4. Levanta el servidor embebido de PHP:
    ```
